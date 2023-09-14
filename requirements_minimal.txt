@@ -8,3 +8,5 @@ pyyaml
 torch>=1.8.1
 torchaudio>=0.8
 tqdm
+flask>=2.3.2
+gunicorn>=21.1.0

@@ -8,8 +8,8 @@ import argparse
 import sys
 from pathlib import Path
 import subprocess
+import logging
 
-from dora.log import fatal
 import torch as th
 import torchaudio as ta
 
@@ -132,7 +132,7 @@ def main(opts=None):
     try:
         model = get_model_from_args(args)
     except ModelLoadingError as error:
-        fatal(error.args[0])
+        logging.fatal(error.args[0])
 
     max_allowed_segment = float('inf')
     if isinstance(model, HTDemucs):
@@ -140,7 +140,7 @@ def main(opts=None):
     elif isinstance(model, BagOfModels):
         max_allowed_segment = model.max_allowed_segment
     if args.segment is not None and args.segment > max_allowed_segment:
-        fatal("Cannot use a Transformer model with a longer segment "
+        logging.fatal("Cannot use a Transformer model with a longer segment "
               f"than it was trained for. Maximum segment is: {max_allowed_segment}")
 
     if isinstance(model, BagOfModels):
@@ -151,7 +151,7 @@ def main(opts=None):
     model.eval()
 
     if args.stem is not None and args.stem not in model.sources:
-        fatal(
+        logging.fatal(
             'error: stem "{stem}" is not in selected model. STEM must be one of {sources}.'.format(
                 stem=args.stem, sources=', '.join(model.sources)))
     out = args.out / args.name
@@ -213,7 +213,3 @@ def main(opts=None):
                                               stem="no_"+args.stem, ext=ext)
             stem.parent.mkdir(parents=True, exist_ok=True)
             save_audio(other_stem, str(stem), **kwargs)
-
-
-if __name__ == "__main__":
-    main()
